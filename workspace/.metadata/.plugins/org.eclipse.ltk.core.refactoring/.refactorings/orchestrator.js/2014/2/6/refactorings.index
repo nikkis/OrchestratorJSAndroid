@@ -1,0 +1,10 @@
+1391504924556	Rename resource 'activity_player_device.xml'
+1391505105149	Rename resource 'activity_player_capability.xml'
+1391505109427	Move file
+1391505114787	Delete element
+1391505166967	Delete element
+1391505200252	Rename type 'PlayerDeviceActivity'
+1391505306450	Rename type 'TalkingDevice'
+1391514632520	Rename field 'tts'
+1391514699758	Rename field 'applicationContext'
+1391514992831	Rename method 'setApplicationContext'
