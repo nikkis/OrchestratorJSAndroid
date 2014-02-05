@@ -53,6 +53,12 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Screen" >
         </activity>
+
+        <!-- DialogCapability -->
+        <activity
+            android:name="com.ojs.capabilities.dialogCapability.DialogCapabilityActivity"
+            android:label="Dialog" >
+        </activity>
         
         <!-- TestCapability -->
         <activity

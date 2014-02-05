@@ -54,12 +54,15 @@ public class OrchestratorJsActivity extends Activity {
 	
 	private static final String CAPABILITY_PATH = "com/ojs/capabilities/";
 
-	private static final String MY_FILTER = "MYFILTER";
+	private static final String OJS_FILTER = "OJS_FILTER";
 	private BroadcastReceiver _myReceiver = new MyReceiver();
 	private BroadcastReceiver _heartbeatReceiver = new HeartbeatReceiver();
-	public static final String SD_EVENT_FILTER = "SD_EVENT_FILTER";
-	public static final String SD_EVENT_PARAMS = "SD_EVENT_PARAMS";
-	private BroadcastReceiver _sdeventReceiver = new SDEventReceiver();
+	public static final String OJS_EVENT_FILTER = "OJS_EVENT_FILTER";
+	public static final String OJS_EVENT_PARAMS = "OJS_EVENT_PARAMS";
+	private BroadcastReceiver _ojseventReceiver = new OJSEventReceiver();
+	
+	private static final String OJS_NOTIFICATION_FILTER = "OJS_NOTIFICATION_FILTER";
+	private BroadcastReceiver _notificationReceiver = new NofifyReceiver();
 	
 	
 	private String currentActionId = "";
@@ -94,9 +97,12 @@ public class OrchestratorJsActivity extends Activity {
 		if(_heartbeatReceiver != null)
 			unregisterReceiver(_heartbeatReceiver);
 
-		if(_sdeventReceiver != null)
-			unregisterReceiver(_sdeventReceiver);
+		if(_ojseventReceiver != null)
+			unregisterReceiver(_ojseventReceiver);
 
+		if(_notificationReceiver != null)
+			unregisterReceiver(_notificationReceiver);		
+		
 	}
 	
 	
@@ -171,12 +177,15 @@ public class OrchestratorJsActivity extends Activity {
 */
 		
 
-		IntentFilter filter1 = new IntentFilter(MY_FILTER);
+		IntentFilter filter1 = new IntentFilter(OJS_FILTER);
 		registerReceiver(_myReceiver, filter1);
 		IntentFilter filter2 = new IntentFilter(SocketIOClient.HEARTBEAT_INTENT);
 		registerReceiver(_heartbeatReceiver, filter2);
-		IntentFilter filter3 = new IntentFilter(SD_EVENT_FILTER);
-		registerReceiver(_sdeventReceiver, filter3);
+		IntentFilter filter3 = new IntentFilter(OJS_EVENT_FILTER);
+		registerReceiver(_ojseventReceiver, filter3);
+		IntentFilter filter4 = new IntentFilter(OJS_NOTIFICATION_FILTER);
+		registerReceiver(_notificationReceiver, filter4);
+		
 		
 		connectBtn = (Button) findViewById(R.id.connect);
 
@@ -277,6 +286,11 @@ public class OrchestratorJsActivity extends Activity {
 			public void onConnect() {
 				Log.d(TAG, "Connected!");
 				initConnection();
+				
+				Intent i = new Intent(OJS_NOTIFICATION_FILTER);
+				i.putExtra("notificationMessage", "Connected to orchestrator.js");
+				i.putExtra("notificationType", 1);
+				sendBroadcast(i);
 			}
 
 			@Override
@@ -284,7 +298,7 @@ public class OrchestratorJsActivity extends Activity {
 				Log.d(TAG, String.format("Got event %s: %s", event, arguments.toString()));
 				String METHODCALL_TYPE = "methodcall";
 				if (event.equals(METHODCALL_TYPE)) {
-					Intent i = new Intent(MY_FILTER);
+					Intent i = new Intent(OJS_FILTER);
 					i.putExtra("arguments", arguments.toString());
 					sendBroadcast(i);
 				}
@@ -301,7 +315,7 @@ public class OrchestratorJsActivity extends Activity {
 			@Override
 			public void onMessage(String message) {
 				Log.d(TAG, String.format("Got message: %s", message));
-				Intent i = new Intent(MY_FILTER);
+				Intent i = new Intent(OJS_FILTER);
 				i.putExtra("message", message);
 				sendBroadcast(i);
 			}
@@ -314,7 +328,12 @@ public class OrchestratorJsActivity extends Activity {
 
 			@Override
 			public void onError(Exception error) {
-				Log.e(TAG, "Error!", error);
+				Log.e(TAG, "Error!");
+				error.printStackTrace();
+				Intent i = new Intent(OJS_NOTIFICATION_FILTER);
+				i.putExtra("notificationMessage", "Cannot connect to orchestrator.js");
+				i.putExtra("notificationType", -1);
+				sendBroadcast(i);
 			}
 
 			@Override
@@ -406,7 +425,7 @@ public class OrchestratorJsActivity extends Activity {
 			responseArguments.put(currentMethodcallId);
 			responseArguments.put(deviceId);
 			responseArguments.put(reason);
-			client.emit("sd_exception", responseArguments);
+			client.emit("ojs_exception", responseArguments);
 		} catch(Exception ee) {
 			ee.printStackTrace();
 		}
@@ -526,11 +545,28 @@ public class OrchestratorJsActivity extends Activity {
 	}
 
 
+	private class NofifyReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			p("notification");
+			String notificationMessage = intent.getStringExtra("notificationMessage");
+			int notificationType = intent.getIntExtra("notificationType",0);
+			if(notificationType == -1)
+				Toast.makeText(getApplicationContext(), notificationMessage, Toast.LENGTH_LONG).show();
+			else if(notificationType == 1)
+				Toast.makeText(getApplicationContext(), notificationMessage, Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(getApplicationContext(), notificationMessage, Toast.LENGTH_LONG).show();
+		}
+	};
+	
+	
 	private class HeartbeatReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			p("got heartbeat!! wuhuu!");
+			p("..heartbeat..");
 			blink();
 		}
 	};
@@ -562,18 +598,18 @@ public class OrchestratorJsActivity extends Activity {
 	}
 
 
-	private class SDEventReceiver extends BroadcastReceiver {
+	private class OJSEventReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			try {
 				p("got SDEvent");
 				
-				JSONObject o = new JSONObject(intent.getStringExtra(OrchestratorJsActivity.SD_EVENT_PARAMS));
+				JSONObject o = new JSONObject(intent.getStringExtra(OrchestratorJsActivity.OJS_EVENT_PARAMS));
 				JSONArray args = new JSONArray();
 				args.put(currentActionId);
 				args.put(deviceId);
 				args.put(o);
-				client.emit("sd_event", args);
+				client.emit("ojs_event", args);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}

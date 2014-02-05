@@ -1,0 +1,5 @@
+package com.ojs.capabilities.dialogCapability;
+
+public class DialogCapability {
+
+}
