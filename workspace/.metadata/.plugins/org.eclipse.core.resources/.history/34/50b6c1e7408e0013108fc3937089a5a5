@@ -29,7 +29,7 @@ public class DialogCapability {
 		
 		Log.d(OrchestratorJsActivity.TAG, "showing dialog!");
 		
-		DialogCapability.dialogChoice = "";
+		DialogCapability.dialogChoice = null;
 		
 		Intent i = new Intent(DialogCapability.applicationContext_, DialogCapabilityActivity.class);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -54,7 +54,7 @@ public class DialogCapability {
 
 	public String getDialogChoice() {
 		Log.d(OrchestratorJsActivity.TAG, "getting dialog choice which is currently: "+DialogCapability.dialogChoice);
-		return DialogCapability.dialogChoice.toString();
+		return DialogCapability.dialogChoice;
 	}
 	
 	
