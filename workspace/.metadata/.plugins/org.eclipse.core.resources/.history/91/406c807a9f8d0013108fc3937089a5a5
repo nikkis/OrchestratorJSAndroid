@@ -1,5 +1,0 @@
-package com.ojs.capabilities.dialogCapability;
-
-public class DialogCapabilityActivity extends Activity {
-
-}

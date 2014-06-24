@@ -16,7 +16,6 @@
 <fullyQualifiedTypeName name="android.speech.tts.UtteranceProgressListener"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.talkingCapability.TalkingCapability"/>
 <fullyQualifiedTypeName name="android.media.AudioManager"/>
-<fullyQualifiedTypeName name="org.json.JSONObject"/>
 <fullyQualifiedTypeName name="java.lang.Exception"/>
 <fullyQualifiedTypeName name="android.app.Activity"/>
 <fullyQualifiedTypeName name="android.widget.Button"/>
@@ -27,9 +26,7 @@
 <fullyQualifiedTypeName name="com.ojs.capabilities.testCapability.TestCapability"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.dialogCapability.DialogCapabilityActivity"/>
 <fullyQualifiedTypeName name="java.util.List"/>
-<fullyQualifiedTypeName name="com.ojs.OrchestratorJsActivity"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
-<fullyQualifiedTypeName name="android.util.Log"/>
 <fullyQualifiedTypeName name="android.widget.HorizontalScrollView"/>
 <fullyQualifiedTypeName name="android.widget.LinearLayout"/>
 <fullyQualifiedTypeName name="android.graphics.drawable.GradientDrawable.Orientation"/>
@@ -38,4 +35,9 @@
 <fullyQualifiedTypeName name="android.widget.TextView"/>
 <fullyQualifiedTypeName name="android.util.TypedValue"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.dialogCapability.DialogCapability"/>
+<fullyQualifiedTypeName name="android.graphics.Color"/>
+<fullyQualifiedTypeName name="org.json.JSONArray"/>
+<fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="org.json.JSONObject"/>
+<fullyQualifiedTypeName name="com.ojs.OrchestratorJsActivity"/>
 </qualifiedTypeNameHistroy>

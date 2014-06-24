@@ -17,6 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import org.json.JSONObject;
 
@@ -25,6 +26,7 @@ import com.ojs.libraries.SocketIOClient;
 import com.ojs.settings.GeneralSettingsActivity;
 
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 
 import android.media.AudioManager;
@@ -62,6 +64,10 @@ public class OrchestratorJsActivity extends Activity {
 	private BroadcastReceiver _ojseventReceiver = new OJSEventReceiver();
 	
 	private static final String OJS_NOTIFICATION_FILTER = "OJS_NOTIFICATION_FILTER";
+
+
+	protected static final Object INFO_TYPE = "ojs_info";
+	
 	private BroadcastReceiver _notificationReceiver = new NofifyReceiver();
 	
 	
@@ -203,8 +209,6 @@ public class OrchestratorJsActivity extends Activity {
 			}
 		});
 		
-		connectBtn.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
-
 
 
 		disconnectBtn = (Button) findViewById(R.id.disconnect);
@@ -218,7 +222,11 @@ public class OrchestratorJsActivity extends Activity {
 				}
 			}
 		});
+		
 
+		// color for buttons :-)
+		connectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
+		disconnectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
 
 	}
 
@@ -301,7 +309,12 @@ public class OrchestratorJsActivity extends Activity {
 					Intent i = new Intent(OJS_FILTER);
 					i.putExtra("arguments", arguments.toString());
 					sendBroadcast(i);
+				} else if( event.equals( INFO_TYPE ) ) {
+					saveConfig( arguments );
 				}
+			}
+
+			private void saveConfig(JSONArray arguments) {
 			}
 
 			@Override
@@ -454,6 +467,7 @@ public class OrchestratorJsActivity extends Activity {
 			}
 
 			
+			
 			List<Object> parameterObjects = new ArrayList<Object>();
 			Class<?>[] parameterClasses = new Class[] {}; 
 			for (int i = 0; i < methodCallArguments.length(); i++) {
@@ -493,6 +507,9 @@ public class OrchestratorJsActivity extends Activity {
 			if(methodReturnValue != null && methodReturnValue instanceof JSONObject ) {
 				responseArguments.put((JSONObject) methodReturnValue);
 				responseArguments.put("JSON");
+			} else if(methodReturnValue != null && methodReturnValue instanceof JSONArray ) {
+				responseArguments.put((JSONArray) methodReturnValue);
+				responseArguments.put("JSON");				
 			} else if(methodReturnValue != null && methodReturnValue instanceof Boolean) {
 				responseArguments.put((Boolean)methodReturnValue);
 				responseArguments.put("BOOL");
@@ -515,13 +532,50 @@ public class OrchestratorJsActivity extends Activity {
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(getApplicationContext(),
-					"Error while sending response! The sky will fall now",
+					"Error while sending response",
 					Toast.LENGTH_LONG).show();
 		}
 
 	}
 
+	
+	public static void ojsLog(String message) {
+		try {
+			JSONArray sendLogMessage = new JSONArray();
+			sendLogMessage.put(OrchestratorJsActivity.singleton.currentActionId);
+			sendLogMessage.put(OrchestratorJsActivity.singleton.deviceId);
+			sendLogMessage.put(message);
+			OrchestratorJsActivity.singleton.client.emit("ojs_log", sendLogMessage);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
+	
+	
+	public static void ojsContextData(JSONObject contextData) {
+		try {
+			
+			JSONArray sendContextData = new JSONArray();
+			sendContextData.put(OrchestratorJsActivity.singleton.currentActionId);
+			sendContextData.put(OrchestratorJsActivity.singleton.deviceId);
+			sendContextData.put(contextData);
+			OrchestratorJsActivity.singleton.client.emit("ojs_context_data", sendContextData);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(OrchestratorJsActivity.singleton.getApplicationContext(),
+					"Error while sending context data",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	
+	
+	
 	private void initConnection() {
 		try {
 			JSONArray responseArguments = new JSONArray();
@@ -532,13 +586,16 @@ public class OrchestratorJsActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
+	
+	
 	private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 	void blink() {
-		changeUIimage(R.drawable.blink1);
+		changeUIimage(R.drawable.blink3);
 		Runnable task = new Runnable() {
 			public void run() {
-				changeUIimage(R.drawable.blink2);
+				changeUIimage(R.drawable.blink4);
 			}
 		};
 		worker.schedule(task, 1, TimeUnit.SECONDS);
@@ -568,6 +625,22 @@ public class OrchestratorJsActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			p("..heartbeat..");
 			blink();
+			
+			try {
+				// for testing the context context data
+				/*
+				JSONObject tt = new JSONObject();
+				tt.put("wifi_ssid", "peltomaa");
+				OrchestratorJsActivity.ojsContextData(tt);
+				*/
+				
+				// for testing the log
+				//OrchestratorJsActivity.ojsLog("do you feel my heart beating, do you understand?");
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
 		}
 	};
 

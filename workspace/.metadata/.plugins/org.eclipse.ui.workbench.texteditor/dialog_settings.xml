@@ -3,26 +3,26 @@
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="263" key="DIALOG_WIDTH"/>
 		<item value="117" key="DIALOG_Y_ORIGIN"/>
-		<item value="399" key="DIALOG_HEIGHT"/>
 		<item value="901" key="DIALOG_X_ORIGIN"/>
+		<item value="399" key="DIALOG_HEIGHT"/>
 		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="isRegEx"/>
 		<item value="false" key="casesensitive"/>
+		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="onErr" key="selection"/>
+		<item value="" key="selection"/>
 		<list key="findhistory">
-			<item value="onerr"/>
-			<item value="register"/>
-			<item value="onerror"/>
-			<item value="for"/>
-			<item value="filter"/>
-			<item value="OJSEventReceiver"/>
-			<item value="setApp"/>
-			<item value="initCa"/>
+			<item value="coff"/>
+			<item value="coffee"/>
+			<item value="INFO_TYPE"/>
+			<item value="type"/>
+			<item value="sendMetadata"/>
+			<item value="sendResponse"/>
+			<item value="send"/>
+			<item value="sendre"/>
 		</list>
 		<list key="replacehistory">
 		</list>
