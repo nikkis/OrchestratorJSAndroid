@@ -3,6 +3,12 @@ package com.ojs.capabilities.testCapability;
 
 
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.json.JSONObject;
+
 import com.ojs.OrchestratorJsActivity;
 
 
@@ -24,6 +30,49 @@ public class TestCapability {
 		TestCapability.applicationContext.registerReceiver(testCapabilityReceiver, new IntentFilter(testCapabilityReceiverFilter));
 	}
 
+	
+	
+	
+	
+	
+	/////// Speed test Begin
+	private List<Long> latencies;
+	private Date lastEndTime = null;
+
+	public void dummyMethod()  throws Exception {
+		if(lastEndTime != null) {
+			long delta = (new Date()).getTime() - lastEndTime.getTime();
+			//Log.d("LAG", Long.toString(delta)+" ms.");
+			Log.d("LAG", Long.toString(delta));
+			latencies.add(delta);
+		}
+		lastEndTime = new Date();
+		return;
+	}
+	
+	public void initMeasurement()  throws Exception {	
+		lastEndTime = null;
+		latencies = new ArrayList<Long>();
+		Log.d("LAG", "New measurement initialized");
+		return;
+	}
+
+	public void calculateAverage()  throws Exception {
+		if(latencies != null && !latencies.isEmpty()) {
+			long total = 0;
+			for (int i = 0; i < latencies.size(); i++) {
+				total += latencies.get(i);
+			}
+			long average = total / latencies.size();
+			Log.d("LAG", "On average: "+Long.toString(average) + " ms.");
+		}
+		return;
+	}
+	/////// Speed test End
+	
+	
+	
+	
 
 
 	@SuppressLint("NewApi")

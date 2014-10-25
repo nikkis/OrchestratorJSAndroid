@@ -19,20 +19,17 @@ public class SettingHelpers {
 
 	private static final String enabled_capabilities_preferences_name = "enabled_capabilities";
 
-	private static String defaul_orch_host = "social.cs.tut.fi";
-	private static String defaul_orch_port = "8080";
+	private static String defaul_orch_host = "orchestratorjs.org";
+	private static String defaul_orch_port = "9000";
 
-	private static String defaul_prox_host = "social.cs.tut.fi";
-	private static String defaul_prox_port = "8999";
+	private static String defaul_prox_host = "orchestratorjs.org";
+	private static String defaul_prox_port = "9001";
 	
 	public static String getStringValue(String key, Context serviceOrActivity) {
 		
-		prefs = PreferenceManager.getDefaultSharedPreferences(serviceOrActivity); //serviceOrActivity.getSharedPreferences(PREFERENCES_NAME, serviceOrActivity.MODE_PRIVATE);
+		prefs = PreferenceManager.getDefaultSharedPreferences(serviceOrActivity);
 		String val = prefs.getString(key,"");
 		
-		
-		
-		//serviceOrActivity.getSharedPreferences(name, mode)
 		
 		if(val.equals("") && key.equals("orchestrator_host")) {
 			return defaul_orch_host;
@@ -68,42 +65,6 @@ public class SettingHelpers {
 		editor.commit();
 		return ;
 	}
-	
-	
-	/*
-
-	public static boolean saveInterfacesArray(Map<String, String> enabledInterfaces, Context serviceOrActivity) {   
-		//prefs = PreferenceManager.getDefaultSharedPreferences(serviceOrActivity);
-		prefs = serviceOrActivity.getSharedPreferences("SocialDevicesEnabledInterfaces", Context.MODE_MULTI_PROCESS);
-	    SharedPreferences.Editor editor = prefs.edit();  
-	    editor.putInt(enabled_capabilities_preferences_name +"_size", enabledInterfaces.size());  
-	    
-	    int i = 0;
-		for (Entry<String, String> entry : enabledInterfaces.entrySet()) {
-			editor.putString(enabled_capabilities_preferences_name + "_key_" + i, entry.getKey());
-			editor.putString(enabled_capabilities_preferences_name + "_val_" + i, entry.getValue());
-			i++;
-		}
-	    return editor.commit();  
-	} 
-	
-	
-	public static Map<String, String> loadInterfacesArray(Context serviceOrActivity) {
-		Map<String, String> retVal = new HashMap<String, String>();
-		//prefs = PreferenceManager.getDefaultSharedPreferences(serviceOrActivity);
-		prefs = serviceOrActivity.getSharedPreferences("SocialDevicesEnabledInterfaces", Context.MODE_MULTI_PROCESS);
-	    int size = prefs.getInt(enabled_capabilities_preferences_name + "_size", 0);  
-	    for(int i=0;i<size;i++) {
-	    	String key = prefs.getString(enabled_capabilities_preferences_name + "_key_" + i, null);
-	    	String val = prefs.getString(enabled_capabilities_preferences_name + "_val_" + i, null);
-	    	
-	    	p("HH: "+key+" : "+val);
-	    	if(!val.equals("0"))
-	    		retVal.put(key, val);
-	    }
-	    return retVal;  
-	}
-	*/
 	
 	
 	
@@ -156,6 +117,8 @@ public class SettingHelpers {
 		
 		return newSet;
 	}
+	
+	
 	
 	/////////////// Multiprocess end
 	

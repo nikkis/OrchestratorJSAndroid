@@ -4,6 +4,7 @@ package com.ojs;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,22 +17,30 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.conn.HttpHostConnectException;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import org.json.JSONObject;
 
 import com.ojs.helpers.SettingHelpers;
 import com.ojs.libraries.SocketIOClient;
+import com.ojs.services.ContextDataService;
 import com.ojs.settings.GeneralSettingsActivity;
 
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Looper;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -51,24 +60,31 @@ public class OrchestratorJsActivity extends Activity {
 
 	public static final String TAG = "ojs";
 
-	
 	private static final String CAPABILITY_PATH = "com/ojs/capabilities/";
 
 	private static final String OJS_FILTER = "OJS_FILTER";
 	private BroadcastReceiver _myReceiver = new MyReceiver();
 	private BroadcastReceiver _heartbeatReceiver = new HeartbeatReceiver();
+
+	private BroadcastReceiver _networkStateReceiver = new ConnectionChangeReceiver();
+
 	public static final String OJS_EVENT_FILTER = "OJS_EVENT_FILTER";
 	public static final String OJS_EVENT_PARAMS = "OJS_EVENT_PARAMS";
 	private BroadcastReceiver _ojseventReceiver = new OJSEventReceiver();
-	
+
 	private static final String OJS_NOTIFICATION_FILTER = "OJS_NOTIFICATION_FILTER";
+
+
+
+	protected static final Object INFO_TYPE = "ojs_info";
+
 	private BroadcastReceiver _notificationReceiver = new NofifyReceiver();
-	
-	
+
+
 	private String currentActionId = "";
 	private String currentMethodcallId = "";
 
-	
+
 	private static Set<String> enabledCapabilities = null; //new String[] {"TalkingDevice", "PlayerDevice", "UrlScreen"};
 	private HashMap<String, Object[]> capabilityObjects;
 
@@ -88,39 +104,78 @@ public class OrchestratorJsActivity extends Activity {
 
 	private SocketIOClient client = null;
 
+	private boolean contextServiceEnabled;
 
-	@Override
-	protected void onDestroy() {
-		if(_myReceiver != null)
-			unregisterReceiver(_myReceiver);
+	private boolean showDebugNotifications;
 
-		if(_heartbeatReceiver != null)
-			unregisterReceiver(_heartbeatReceiver);
+	private int reconnectAttempts = -1;
 
-		if(_ojseventReceiver != null)
-			unregisterReceiver(_ojseventReceiver);
 
-		if(_notificationReceiver != null)
-			unregisterReceiver(_notificationReceiver);		
+	private Thread _ojsConnectionThread;
+
+
+
+
+
+	private void reconnect() {
+
+		Runnable r = new Runnable() {
+			public void run() {	   
+
+				try {
+					applySettings();
+					if( client == null ) {
+						u = new URI(ipAdress);
+						client = createSocketIOClient();
+					}
+				} catch (URISyntaxException e1) {
+					e1.printStackTrace();
+				}
+
+				
+				
+
+				ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService( Context.CONNECTIVITY_SERVICE );
+				NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+
+				if ( activeNetInfo != null ) {
+					reconnectAttempts += 1;
+					if( reconnectAttempts < 5) {
+						//client = createSocketIOClient();
+						p("connecting..");
+						client.connect();
+
+					}
+				} else {
+					
+					p("no active internet connection");
+					
+					Intent si = new Intent(getApplicationContext(), ContextDataService.class);
+					stopService(si);
+
+
+					try {
+						Thread.sleep(1000*5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}		
+					reconnect();
+				}
+			}
+		};   
 		
+		
+		_ojsConnectionThread = new Thread(r);
+		_ojsConnectionThread.start();
 	}
-	
-	
-	
-	
-	
-	@Override
-	public void onBackPressed() {
-		//super.onBackPressed();
-		p("back was pressed");
-	}
-
 
 
 
 
 	public void applySettings() {
-		
+
+
+		// TODO: load settings from server first!!
 		enabledCapabilities = SettingHelpers.loadEnabledCapabilities(getApplicationContext());
 		p("I have capabilities: " + enabledCapabilities.toString());
 		initializeCapabilities();
@@ -133,18 +188,53 @@ public class OrchestratorJsActivity extends Activity {
 
 		deviceId = SettingHelpers.getStringValue("deviceIdentity", this);
 
-		// check that settings are valid
+		// check that settings are valid. Device identity is a must!
 		if(deviceId.equals("NoIdentity")) {
 			Intent i = new Intent(getApplicationContext(),
 					GeneralSettingsActivity.class);
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(i);
 		}
+
+
+
+
+
+
+
+
+
+		// Load Context service and other settings
+
+		showDebugNotifications = SettingHelpers.getMultiProcessBooleanValue("showDebugNotifications", this);
+		if(showDebugNotifications)
+			p("Showing also debug notifications");
+		else
+			p("Not showing debug notifications");
+
+		contextServiceEnabled = SettingHelpers.getMultiProcessBooleanValue("enableContextDataService", this);
+		if(contextServiceEnabled) {
+			p("context service enabled -> starting..");
+
+			Intent serviceStartIntent = new Intent(getApplicationContext(), ContextDataService.class);
+			//startService(serviceStartIntent);
+
+		} else {
+			p("context service enabled -> ensure stop");
+			Intent intent = new Intent(getApplicationContext(), ContextDataService.class);
+			stopService(intent);
+		}
+
+		String BT_MAC = BluetoothAdapter.getDefaultAdapter().getAddress();
+		p(BT_MAC);
+
+
+
 		return;
 	}
-	
-	
-	
+
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -154,28 +244,10 @@ public class OrchestratorJsActivity extends Activity {
 		OrchestratorJsActivity.singleton = this;
 
 		setContentView(R.layout.activity_orchestrator_js);
-/*
-		enabledCapabilities = SettingHelpers.loadEnabledCapabilities(getApplicationContext());
-		p("I have capabilities: " + enabledCapabilities.toString());
-		initializeCapabilities();
 
-		String host = SettingHelpers.getStringValue("orchestrator_host", this);
-		p("host: " + host);
-		String port = SettingHelpers.getStringValue("orchestrator_port", this);
-		p("port: " + port);
-		ipAdress = "http://" + host + ":" + port;
 
-		deviceId = SettingHelpers.getStringValue("deviceIdentity", this);
-
-		// check that settings are valid
-		if(deviceId.equals("NoIdentity")) {
-			Intent i = new Intent(getApplicationContext(),
-					GeneralSettingsActivity.class);
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(i);
-		}
-*/
-		
+		IntentFilter filter0 = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+		registerReceiver(_networkStateReceiver, filter0);
 
 		IntentFilter filter1 = new IntentFilter(OJS_FILTER);
 		registerReceiver(_myReceiver, filter1);
@@ -185,25 +257,26 @@ public class OrchestratorJsActivity extends Activity {
 		registerReceiver(_ojseventReceiver, filter3);
 		IntentFilter filter4 = new IntentFilter(OJS_NOTIFICATION_FILTER);
 		registerReceiver(_notificationReceiver, filter4);
-		
-		
+
+
 		connectBtn = (Button) findViewById(R.id.connect);
 
 		connectBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
+				/*
 				try {
 					applySettings();
-					
+
 					u = new URI(ipAdress);
 					client = createSocketIOClient();
 				} catch (URISyntaxException e1) {
 					e1.printStackTrace();
 				}
 				client.connect();
+				 */
+				reconnect();
 			}
 		});
-		
-		connectBtn.getBackground().setColorFilter(0xFF00FF00, PorterDuff.Mode.MULTIPLY);
 
 
 
@@ -216,6 +289,28 @@ public class OrchestratorJsActivity extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}
+		});
+
+
+		// color for buttons :-)
+		connectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
+		disconnectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
+
+
+
+
+		Button testBtn = (Button) findViewById(R.id.testBtn);
+		testBtn.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+
+				Intent serviceStartIntent = new Intent(getApplicationContext(), ContextDataService.class);
+				startService(serviceStartIntent);
+				
+				Intent i = new Intent();
+				i.setAction(ContextDataService.USER_COMMAND);
+				sendBroadcast(i);
 			}
 		});
 
@@ -245,10 +340,8 @@ public class OrchestratorJsActivity extends Activity {
 			ClassLoader classLoader = getClassLoader();
 
 			capabilityObjects = new HashMap<String, Object[]>();
-			//for (int i = 0; i < MainActivity.enabledCapabilities.length; i++) {
-			for (String capabilityName : enabledCapabilities) {
 
-				//String capabilityName = MainActivity.enabledCapabilities[i];
+			for (String capabilityName : enabledCapabilities) {
 
 				String packagePrefix = Character.toString(Character.toLowerCase(capabilityName.charAt(0)))+capabilityName.substring(1);
 				p("packagePrefix: " + packagePrefix);
@@ -259,7 +352,6 @@ public class OrchestratorJsActivity extends Activity {
 				Object[] object = new Object[] {clazz, o};
 
 				try {
-					//Method myMethod1 = clazz.getMethod("setApplicationContext", new Class[] { Context.class });
 					Method myMethod1 = clazz.getMethod("initCapability", new Class[] { Context.class });
 					myMethod1.invoke(o, new Object[] { getApplicationContext() });
 				} catch (Exception e) {
@@ -282,11 +374,12 @@ public class OrchestratorJsActivity extends Activity {
 
 	private SocketIOClient createSocketIOClient() {
 		return new SocketIOClient(u, new SocketIOClient.Handler() {
+
 			@Override
 			public void onConnect() {
 				Log.d(TAG, "Connected!");
 				initConnection();
-				
+
 				Intent i = new Intent(OJS_NOTIFICATION_FILTER);
 				i.putExtra("notificationMessage", "Connected to orchestrator.js");
 				i.putExtra("notificationType", 1);
@@ -301,7 +394,12 @@ public class OrchestratorJsActivity extends Activity {
 					Intent i = new Intent(OJS_FILTER);
 					i.putExtra("arguments", arguments.toString());
 					sendBroadcast(i);
+				} else if( event.equals( INFO_TYPE ) ) {
+					saveConfig( arguments );
 				}
+			}
+
+			private void saveConfig(JSONArray arguments) {
 			}
 
 			@Override
@@ -324,24 +422,90 @@ public class OrchestratorJsActivity extends Activity {
 			public void onDisconnect(int code, String reason) {
 				Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s",
 						code, reason));
+				if( reason.equals("EOF") )
+					reconnect();
 			}
+
+
 
 			@Override
 			public void onError(Exception error) {
 				Log.e(TAG, "Error!");
 				error.printStackTrace();
-				Intent i = new Intent(OJS_NOTIFICATION_FILTER);
-				i.putExtra("notificationMessage", "Cannot connect to orchestrator.js");
-				i.putExtra("notificationType", -1);
-				sendBroadcast(i);
+				if(error instanceof HttpHostConnectException ) {
+					p("HttpHostConnectionException -> server down?");
+
+					Intent i = new Intent(OJS_NOTIFICATION_FILTER);
+					i.putExtra("notificationMessage", "Cannot connect");
+					i.putExtra("notificationType", -1);
+					sendBroadcast(i);
+
+
+				} else if(error instanceof SocketException ) {
+					p("Socket Exception -> reconnect");
+
+					// user closed connection
+					if(!error.getMessage().equals("Socket closed"))
+						reconnect();
+
+					Intent i = new Intent(OJS_NOTIFICATION_FILTER);
+					i.putExtra("notificationMessage", "Connection Broken, check wifi");
+					i.putExtra("notificationType", -1);
+					sendBroadcast(i);
+
+				} else if(error.getMessage().equals("Connection down")) {
+
+				} else {
+
+					Intent i = new Intent(OJS_NOTIFICATION_FILTER);
+					i.putExtra("notificationMessage", "Other error: "+error.getMessage());
+					i.putExtra("notificationType", -1);
+					sendBroadcast(i);
+				}
+
 			}
 
 			@Override
 			public void onConnectToEndpoint(String endpoint) {
 				Log.d(TAG, "Connected to:" + endpoint);
+				reconnectAttempts = 0;
 			}
 		});
 	}
+
+
+
+
+	private class ConnectionChangeReceiver extends BroadcastReceiver
+	{
+		@Override
+		public void onReceive( Context context, Intent intent )
+		{
+			ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService( Context.CONNECTIVITY_SERVICE );
+			NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+			NetworkInfo mobNetInfo = connectivityManager.getNetworkInfo(     ConnectivityManager.TYPE_MOBILE );
+			if ( activeNetInfo != null && reconnectAttempts != -1 )
+			{
+				//Toast.makeText( context, "Active Network Type : " + activeNetInfo.getTypeName(), Toast.LENGTH_SHORT ).show();
+				reconnect();
+			}
+			else 
+			{
+				Intent si = new Intent(getApplicationContext(), ContextDataService.class);
+				stopService(si);
+			}
+
+
+			/*
+	    if( mobNetInfo != null )
+	    {
+	      Toast.makeText( context, "Mobile Network Type : " + mobNetInfo.getTypeName(), Toast.LENGTH_SHORT ).show();
+	    }
+			 */
+		}
+	}
+
+
 
 	private class MyReceiver extends BroadcastReceiver {
 
@@ -357,7 +521,7 @@ public class OrchestratorJsActivity extends Activity {
 		p("Recieved intent with action: " + intent.getAction());
 		String capabilityName = "";
 		String methodCallName = "";
-		
+
 		try {
 
 			String argumentsJsonString = intent.getStringExtra("arguments");
@@ -374,7 +538,7 @@ public class OrchestratorJsActivity extends Activity {
 			currentMethodcallId = methodcallId;
 			p(currentMethodcallId);
 
-			
+
 			// get methodcall name
 			capabilityName = (String) methodCall.get(2);
 			p(capabilityName);
@@ -390,9 +554,9 @@ public class OrchestratorJsActivity extends Activity {
 
 			p("method invoked!");
 			sendResponse(retVal);
-			
-			
-		// handling exceptions
+
+
+			// handling exceptions
 		} catch (InvocationTargetException e) {
 			p("h1");
 			String cause = e.toString();
@@ -416,7 +580,7 @@ public class OrchestratorJsActivity extends Activity {
 			sendException(e.toString());
 		}
 	}
-	
+
 	private void sendException(String reason) {
 		try {
 			p("sending exception to orchestrator");
@@ -433,54 +597,55 @@ public class OrchestratorJsActivity extends Activity {
 
 	@SuppressLint("NewApi") 
 	private Class<?>[] addElement(Class<?>[] org, Class<?> added) {
-	    Class<?>[] result = Arrays.copyOf(org, org.length +1);
-	    result[org.length] = added;
-	    return result;
+		Class<?>[] result = Arrays.copyOf(org, org.length +1);
+		result[org.length] = added;
+		return result;
 	}
-	
+
 	private Object invokeMethod(String capabilityName, String methodCallName, JSONArray methodCallArguments) throws Exception {
 
-			Object[] classAndInstance = capabilityObjects.get(capabilityName);
-			if(classAndInstance == null) {
-				p("interface " + capabilityName + " was not enabled!");
-				throw(new Exception("interface " + capabilityName + " was not enabled."));
-			}
+		Object[] classAndInstance = capabilityObjects.get(capabilityName);
+		if(classAndInstance == null) {
+			p("interface " + capabilityName + " was not enabled!");
+			throw(new Exception("interface " + capabilityName + " was not enabled."));
+		}
 
-			Class<?> clazz = (Class<?>)classAndInstance[0];
-			Object whatInstance = classAndInstance[1];
-			if(clazz == null || whatInstance == null) {
-				p("clazz or instance was null");
-				throw(new Exception("Cannot find class"));
-			}
+		Class<?> clazz = (Class<?>)classAndInstance[0];
+		Object whatInstance = classAndInstance[1];
+		if(clazz == null || whatInstance == null) {
+			p("clazz or instance was null");
+			throw(new Exception("Cannot find class"));
+		}
 
-			
-			List<Object> parameterObjects = new ArrayList<Object>();
-			Class<?>[] parameterClasses = new Class[] {}; 
-			for (int i = 0; i < methodCallArguments.length(); i++) {
-				Object object = methodCallArguments.get(i);
-				parameterClasses = addElement(parameterClasses, object.getClass());
-				parameterObjects.add(object);
-				p("param class: "+object.getClass().getSimpleName());
-			}			
-			
-			Method theMethod = clazz.getMethod(methodCallName, parameterClasses);
-			
-			p("invoking "+methodCallName);
 
-			p(whatInstance.toString());
-			p(whatInstance.getClass().getSimpleName());
 
-			p(theMethod.toString());
-			p(theMethod.getClass().getSimpleName());
+		List<Object> parameterObjects = new ArrayList<Object>();
+		Class<?>[] parameterClasses = new Class[] {}; 
+		for (int i = 0; i < methodCallArguments.length(); i++) {
+			Object object = methodCallArguments.get(i);
+			parameterClasses = addElement(parameterClasses, object.getClass());
+			parameterObjects.add(object);
+			p("param class: "+object.getClass().getSimpleName());
+		}			
 
-			Object methodReturnValue = theMethod.invoke(whatInstance, parameterObjects.toArray());
+		Method theMethod = clazz.getMethod(methodCallName, parameterClasses);
 
-			
-			p("method invoked");
-			if(methodReturnValue != null) {
-				p(methodReturnValue.toString());
-			}
-			return methodReturnValue;
+		p("invoking "+methodCallName);
+
+		p(whatInstance.toString());
+		p(whatInstance.getClass().getSimpleName());
+
+		p(theMethod.toString());
+		p(theMethod.getClass().getSimpleName());
+
+		Object methodReturnValue = theMethod.invoke(whatInstance, parameterObjects.toArray());
+
+
+		p("method invoked");
+		if(methodReturnValue != null) {
+			p(methodReturnValue.toString());
+		}
+		return methodReturnValue;
 	}
 
 	public void sendResponse(Object methodReturnValue) {
@@ -489,10 +654,13 @@ public class OrchestratorJsActivity extends Activity {
 			JSONArray responseArguments = new JSONArray();
 			responseArguments.put(currentActionId);
 			responseArguments.put(currentMethodcallId);
-		
+
 			if(methodReturnValue != null && methodReturnValue instanceof JSONObject ) {
 				responseArguments.put((JSONObject) methodReturnValue);
 				responseArguments.put("JSON");
+			} else if(methodReturnValue != null && methodReturnValue instanceof JSONArray ) {
+				responseArguments.put((JSONArray) methodReturnValue);
+				responseArguments.put("JSON");				
 			} else if(methodReturnValue != null && methodReturnValue instanceof Boolean) {
 				responseArguments.put((Boolean)methodReturnValue);
 				responseArguments.put("BOOL");
@@ -509,17 +677,54 @@ public class OrchestratorJsActivity extends Activity {
 				responseArguments.put((Double)methodReturnValue);
 				responseArguments.put("DOUBLE");
 			}
-			
+
 			client.emit("methodcallresponse", responseArguments);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(getApplicationContext(),
-					"Error while sending response! The sky will fall now",
+					"Error while sending response",
 					Toast.LENGTH_LONG).show();
 		}
 
 	}
+
+
+	public static void ojsLog(String message) {
+		try {
+			JSONArray sendLogMessage = new JSONArray();
+			sendLogMessage.put(OrchestratorJsActivity.singleton.currentActionId);
+			sendLogMessage.put(OrchestratorJsActivity.singleton.deviceId);
+			sendLogMessage.put(message);
+			OrchestratorJsActivity.singleton.client.emit("ojs_log", sendLogMessage);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+
+
+	public static void ojsContextData(JSONObject contextData) {
+		try {
+
+			JSONArray sendContextData = new JSONArray();
+			sendContextData.put(OrchestratorJsActivity.singleton.currentActionId);
+			sendContextData.put(OrchestratorJsActivity.singleton.deviceId);
+			sendContextData.put(contextData);
+			OrchestratorJsActivity.singleton.client.emit("ojs_context_data", sendContextData);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(OrchestratorJsActivity.singleton.getApplicationContext(),
+					"Error while sending context data",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
+
 
 
 	private void initConnection() {
@@ -533,12 +738,15 @@ public class OrchestratorJsActivity extends Activity {
 		}
 	}
 
+
+
+
 	private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 	void blink() {
-		changeUIimage(R.drawable.blink1);
+		changeUIimage(R.drawable.blink3);
 		Runnable task = new Runnable() {
 			public void run() {
-				changeUIimage(R.drawable.blink2);
+				changeUIimage(R.drawable.blink4);
 			}
 		};
 		worker.schedule(task, 1, TimeUnit.SECONDS);
@@ -560,24 +768,40 @@ public class OrchestratorJsActivity extends Activity {
 				Toast.makeText(getApplicationContext(), notificationMessage, Toast.LENGTH_LONG).show();
 		}
 	};
-	
-	
+
+
 	private class HeartbeatReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			p("..heartbeat..");
 			blink();
+
+			try {
+				// for testing the context context data
+				/*
+				JSONObject tt = new JSONObject();
+				tt.put("wifi_ssid", "peltomaa");
+				OrchestratorJsActivity.ojsContextData(tt);
+				 */
+
+				// for testing the log
+				//OrchestratorJsActivity.ojsLog("do you feel my heart beating, do you understand?");
+
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+
 		}
 	};
 
 
 	public static void sendHeartbeatIntent() {
-    	Intent i = new Intent();
-    	i.setAction(SocketIOClient.HEARTBEAT_INTENT);
-    	OrchestratorJsActivity.singleton.sendBroadcast(i);
+		Intent i = new Intent();
+		i.setAction(SocketIOClient.HEARTBEAT_INTENT);
+		OrchestratorJsActivity.singleton.sendBroadcast(i);
 	}
-	
+
 	public void changeUIimage(final int drawable) {
 		try {
 			new Thread(new Runnable() {
@@ -603,7 +827,7 @@ public class OrchestratorJsActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			try {
 				p("got SDEvent");
-				
+
 				JSONObject o = new JSONObject(intent.getStringExtra(OrchestratorJsActivity.OJS_EVENT_PARAMS));
 				JSONArray args = new JSONArray();
 				args.put(currentActionId);
@@ -615,5 +839,38 @@ public class OrchestratorJsActivity extends Activity {
 			}
 		}
 	};
+
+
+
+
+	@Override
+	protected void onDestroy() {
+
+		if(_networkStateReceiver != null)
+			unregisterReceiver(_networkStateReceiver);
+
+		if(_myReceiver != null)
+			unregisterReceiver(_myReceiver);
+
+		if(_heartbeatReceiver != null)
+			unregisterReceiver(_heartbeatReceiver);
+
+		if(_ojseventReceiver != null)
+			unregisterReceiver(_ojseventReceiver);
+
+		if(_notificationReceiver != null)
+			unregisterReceiver(_notificationReceiver);		
+
+	}
+
+
+
+
+	@Override
+	public void onBackPressed() {
+		p("back was pressed");
+	}
+
+
 
 }

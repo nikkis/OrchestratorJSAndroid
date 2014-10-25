@@ -22,7 +22,6 @@ public class DialogCapability {
 
 	public void initCapability( Context applicationContext ) {
 		DialogCapability.applicationContext_ = applicationContext;
-		
 	}
 
 	public void showDialog( String title, JSONArray dialogChoices, Integer validTime) throws Exception {

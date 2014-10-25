@@ -45,16 +45,11 @@
         android:title="Debug Notifications" />
 	    
     
-    
-<!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-<!-- 
-    <ListPreference
-        android:defaultValue="-1"
-        android:entries="@array/pref_example_list_titles"
-        android:entryValues="@array/pref_example_list_values"
-        android:key="example_list"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_add_friends_to_messages" />
--->
+	<CheckBoxPreference
+        android:defaultValue="false"
+        android:key="enableContextDataService"
+        android:summary="Enables service that measures context data and reports it to server"
+        android:title="Enable Context Data" />
+	
+	
 </PreferenceScreen>

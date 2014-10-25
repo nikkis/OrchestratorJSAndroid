@@ -105,7 +105,9 @@ public class GeneralSettingsActivity extends PreferenceActivity {
 		Preference p = findPreference("showDebugNotifications");
 		p.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
-		
+		Preference p2 = findPreference("enableContextDataService");
+		p2.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
 		
 	}
 
@@ -199,9 +201,23 @@ public class GeneralSettingsActivity extends PreferenceActivity {
 					} else {
 						SettingHelpers.setMultiProcessBooleanValue("showDebugNotifications", false, preference.getContext().getApplicationContext());
 					}
-					
-					
 				}
+				
+				if("enableContextDataService".equals(preference.getKey())) {
+					boolean val = (Boolean)value;
+					if(val) {
+						SettingHelpers.p("context data service enabled");
+						SettingHelpers.setMultiProcessBooleanValue("enableContextDataService", true, preference.getContext().getApplicationContext());
+						Toast.makeText(preference.getContext().getApplicationContext(), "Context Data Service enabled", Toast.LENGTH_LONG).show();
+					} else {
+						SettingHelpers.p("context data service disabled");
+						SettingHelpers.setMultiProcessBooleanValue("enableContextDataService", false, preference.getContext().getApplicationContext());
+					}
+				}
+				
+				
+				
+				
 				
 			} else {
 				// For all other preferences, set the summary to the value's
@@ -303,140 +319,6 @@ public class GeneralSettingsActivity extends PreferenceActivity {
 			bindPreferenceSummaryToValue(findPreference("hostname"));
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	// capability handlers
-	
-/*
-	
-	private String createPreferenceHierarchy(PreferenceCategory firstCategory,
-    		String capabilityName, List<String> capabilityNumbers) {
- 
-		//List<String> interfaceVersionList = new ArrayList<String>();
-		List<String> entryValuesList = new ArrayList<String>();
-		
-		//interfaceVersionList.add("Disabled");
-		entryValuesList.add(DEFAULT_VALUE);
-		
-		for (String versionNum : capabilityNumbers) {
-			interfaceVersionList.add(capabilityName+" v. "+versionNum);
-			entryValuesList.add(versionNum);
-			//entryValuesList.add(interfaceName+"_v"+versionNum);
-		}
-		
-		CharSequence interfaceVersions[] = interfaceVersionList.toArray(new CharSequence[interfaceVersionList.size()]);
-		CharSequence entryValues[] = entryValuesList.toArray(new CharSequence[entryValuesList.size()]);
-		 
-        ListPreference listPreference = new ListPreference(this);
-        
-        String prefKey = capabilityName+"_preference";
-        listPreference.setKey(prefKey);
-        listPreference.setTitle(capabilityName);
-        listPreference.setDefaultValue(DEFAULT_VALUE);
-        listPreference.setEntries(interfaceVersions);
-        listPreference.setEntryValues(entryValues);
-        listPreference.setDialogTitle("Select version "+capabilityName);
-         
-        firstCategory.addPreference(listPreference);
-         
-        return prefKey;
-    }
-	
-	*/
-	
-	/*
-	public PreferenceScreen createPreferenceHierarchy(){
-	    PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
-
-	    // category 1 created programmatically
-	    PreferenceCategory cat1 = new PreferenceCategory(this);
-	    cat1.setTitle("title");
-	    root.addPreference(cat1);
-
-	    ListPreference list1 = new ListPreference(this);
-	    list1.setTitle("titteli");
-	    list1.setSummary("summanen");      
-	    list1.setDialogTitle("diallll");
-	    list1.setKey("your_key");
-
-	    List<String> list = Arrays.asList("foo", "bar", "waa");
-	    CharSequence[] entries  = list.toArray(new CharSequence[list.size()]);
-	    list1.setEntries(entries);
-	    int length              = entries.length;
-	    CharSequence[] values   = new CharSequence[length];
-	    for (int i=0; i<length; i++){
-	        CharSequence val = ""+i+1+"";
-	        values[i] =  val;
-	    }
-	    list1.setEntryValues(values);
-
-	    cat1.addPreference(list1);
-
-	    PreferenceScreen preferenceScreen = getPreferenceScreen();
-	    preferenceScreen.addPreference(cat1);
-	    
-	    return root;
-	}
-	
-	
-	
-
-	private Map<String, List<String>> getInterfacesListFromServer() {
-		Map<String,List<String>> map = new HashMap<String,List<String>>();
-		try {
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpGet httpget = new HttpGet(CAPABILITY_LIST_URI);
-
-			// Execute HTTP Post Request
-			HttpResponse response = httpclient.execute(httpget);
-			int statusCode = response.getStatusLine().getStatusCode();
-			SettingHelpers.p(Integer.toString(statusCode));
-			
-			if(statusCode != 200) {
-				SettingHelpers.p("cannot load the list");
-				throw new Exception("Cannot load interface list");
-			}
-			//p("got the response");
-			String contents = EntityUtils.toString(response.getEntity());
-			//p(contents);
-			JSONObject jObject = new JSONObject(contents);
-
-			Iterator iter = jObject.keys();
-			while(iter.hasNext()){
-				String key = (String)iter.next();
-				JSONArray value = jObject.getJSONArray(key);
-				List<String> versionNumbers = new ArrayList<String>();
-				for (int i = 0; i < value.length(); i++) {
-					String versionNum = value.getString(i);
-					versionNumbers.add(versionNum);
-				}
-				map.put(key,versionNumbers);
-			}
-			
-		} catch (Exception e) {
-			SettingHelpers.p(e.toString());
-		}
-		
-		return map;
-	}
-	
-	
-	*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

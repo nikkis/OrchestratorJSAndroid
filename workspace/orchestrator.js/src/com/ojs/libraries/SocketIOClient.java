@@ -126,6 +126,13 @@ public class SocketIOClient {
         if (acknowledge != null) {
             mAcknowledges.put(nextId, acknowledge);
         }
+        
+        // TODO: ensure that this really works!
+        if(mSendHandler == null) {
+            mHandler.onError(new Exception("Connection down"));
+        	return;
+        }
+        
         mSendHandler.post(new Runnable() {
             @Override
             public void run() {
