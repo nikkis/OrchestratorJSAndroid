@@ -17,6 +17,11 @@
 <fullyQualifiedTypeName name="android.content.BroadcastReceiver"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.testCapability.TestCapability"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.dialogCapability.DialogCapabilityActivity"/>
+<<<<<<< HEAD
+=======
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+>>>>>>> FETCH_HEAD
 <fullyQualifiedTypeName name="android.widget.HorizontalScrollView"/>
 <fullyQualifiedTypeName name="android.widget.LinearLayout"/>
 <fullyQualifiedTypeName name="android.graphics.drawable.GradientDrawable.Orientation"/>
@@ -26,6 +31,7 @@
 <fullyQualifiedTypeName name="android.util.TypedValue"/>
 <fullyQualifiedTypeName name="com.ojs.capabilities.dialogCapability.DialogCapability"/>
 <fullyQualifiedTypeName name="android.graphics.Color"/>
+<<<<<<< HEAD
 <fullyQualifiedTypeName name="java.util.List"/>
 <fullyQualifiedTypeName name="java.util.Date"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
@@ -55,4 +61,10 @@
 <fullyQualifiedTypeName name="org.apache.http.conn.HttpHostConnectException"/>
 <fullyQualifiedTypeName name="java.lang.Thread"/>
 <fullyQualifiedTypeName name="android.os.Looper"/>
+=======
+<fullyQualifiedTypeName name="org.json.JSONArray"/>
+<fullyQualifiedTypeName name="android.util.Log"/>
+<fullyQualifiedTypeName name="org.json.JSONObject"/>
+<fullyQualifiedTypeName name="com.ojs.OrchestratorJsActivity"/>
+>>>>>>> FETCH_HEAD
 </qualifiedTypeNameHistroy>

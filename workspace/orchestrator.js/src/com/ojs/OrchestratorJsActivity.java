@@ -75,9 +75,14 @@ public class OrchestratorJsActivity extends Activity {
 	private static final String OJS_NOTIFICATION_FILTER = "OJS_NOTIFICATION_FILTER";
 
 
+<<<<<<< HEAD
 
 	protected static final Object INFO_TYPE = "ojs_info";
 
+=======
+	protected static final Object INFO_TYPE = "ojs_info";
+	
+>>>>>>> FETCH_HEAD
 	private BroadcastReceiver _notificationReceiver = new NofifyReceiver();
 
 
@@ -277,7 +282,11 @@ public class OrchestratorJsActivity extends Activity {
 				reconnect();
 			}
 		});
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> FETCH_HEAD
 
 
 		disconnectBtn = (Button) findViewById(R.id.disconnect);
@@ -291,7 +300,11 @@ public class OrchestratorJsActivity extends Activity {
 				}
 			}
 		});
+		
 
+		// color for buttons :-)
+		connectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
+		disconnectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
 
 		// color for buttons :-)
 		connectBtn.getBackground().setColorFilter(Color.parseColor("#34A6C9"), PorterDuff.Mode.CLEAR);
@@ -617,6 +630,7 @@ public class OrchestratorJsActivity extends Activity {
 			throw(new Exception("Cannot find class"));
 		}
 
+<<<<<<< HEAD
 
 
 		List<Object> parameterObjects = new ArrayList<Object>();
@@ -646,6 +660,37 @@ public class OrchestratorJsActivity extends Activity {
 			p(methodReturnValue.toString());
 		}
 		return methodReturnValue;
+=======
+			
+			
+			List<Object> parameterObjects = new ArrayList<Object>();
+			Class<?>[] parameterClasses = new Class[] {}; 
+			for (int i = 0; i < methodCallArguments.length(); i++) {
+				Object object = methodCallArguments.get(i);
+				parameterClasses = addElement(parameterClasses, object.getClass());
+				parameterObjects.add(object);
+				p("param class: "+object.getClass().getSimpleName());
+			}			
+			
+			Method theMethod = clazz.getMethod(methodCallName, parameterClasses);
+			
+			p("invoking "+methodCallName);
+
+			p(whatInstance.toString());
+			p(whatInstance.getClass().getSimpleName());
+
+			p(theMethod.toString());
+			p(theMethod.getClass().getSimpleName());
+
+			Object methodReturnValue = theMethod.invoke(whatInstance, parameterObjects.toArray());
+
+			
+			p("method invoked");
+			if(methodReturnValue != null) {
+				p(methodReturnValue.toString());
+			}
+			return methodReturnValue;
+>>>>>>> FETCH_HEAD
 	}
 
 	public void sendResponse(Object methodReturnValue) {
@@ -689,7 +734,23 @@ public class OrchestratorJsActivity extends Activity {
 
 	}
 
+	
+	public static void ojsLog(String message) {
+		try {
+			JSONArray sendLogMessage = new JSONArray();
+			sendLogMessage.put(OrchestratorJsActivity.singleton.currentActionId);
+			sendLogMessage.put(OrchestratorJsActivity.singleton.deviceId);
+			sendLogMessage.put(message);
+			OrchestratorJsActivity.singleton.client.emit("ojs_log", sendLogMessage);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
+<<<<<<< HEAD
 	public static void ojsLog(String message) {
 		try {
 			JSONArray sendLogMessage = new JSONArray();
@@ -710,12 +771,23 @@ public class OrchestratorJsActivity extends Activity {
 	public static void ojsContextData(JSONObject contextData) {
 		try {
 
+=======
+	
+	
+	public static void ojsContextData(JSONObject contextData) {
+		try {
+			
+>>>>>>> FETCH_HEAD
 			JSONArray sendContextData = new JSONArray();
 			sendContextData.put(OrchestratorJsActivity.singleton.currentActionId);
 			sendContextData.put(OrchestratorJsActivity.singleton.deviceId);
 			sendContextData.put(contextData);
 			OrchestratorJsActivity.singleton.client.emit("ojs_context_data", sendContextData);
+<<<<<<< HEAD
 
+=======
+			
+>>>>>>> FETCH_HEAD
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(OrchestratorJsActivity.singleton.getApplicationContext(),
@@ -723,10 +795,17 @@ public class OrchestratorJsActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 		}
 	}
+<<<<<<< HEAD
 
 
 
 
+=======
+	
+	
+	
+	
+>>>>>>> FETCH_HEAD
 	private void initConnection() {
 		try {
 			JSONArray responseArguments = new JSONArray();
@@ -737,10 +816,17 @@ public class OrchestratorJsActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
+<<<<<<< HEAD
 
 
 
 
+=======
+	
+	
+	
+	
+>>>>>>> FETCH_HEAD
 	private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
 	void blink() {
 		changeUIimage(R.drawable.blink3);
@@ -776,13 +862,18 @@ public class OrchestratorJsActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			p("..heartbeat..");
 			blink();
+<<<<<<< HEAD
 
+=======
+			
+>>>>>>> FETCH_HEAD
 			try {
 				// for testing the context context data
 				/*
 				JSONObject tt = new JSONObject();
 				tt.put("wifi_ssid", "peltomaa");
 				OrchestratorJsActivity.ojsContextData(tt);
+<<<<<<< HEAD
 				 */
 
 				// for testing the log
@@ -792,6 +883,17 @@ public class OrchestratorJsActivity extends Activity {
 				// TODO: handle exception
 			}
 
+=======
+				*/
+				
+				// for testing the log
+				//OrchestratorJsActivity.ojsLog("do you feel my heart beating, do you understand?");
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+>>>>>>> FETCH_HEAD
 		}
 	};
 

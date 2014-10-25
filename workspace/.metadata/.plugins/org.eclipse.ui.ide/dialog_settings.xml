@@ -8,6 +8,7 @@
 		<list key="ENABLED_TRANSFERS">
 		</list>
 	</section>
+<<<<<<< HEAD
 	<section name="NewWizardAction">
 	</section>
 	<section name="CleanDialogSettings">
@@ -17,4 +18,6 @@
 		<item value="398" key="DIALOG_X_ORIGIN"/>
 		<item value="false" key="TOGGLE_SELECTED"/>
 	</section>
+=======
+>>>>>>> FETCH_HEAD
 </section>

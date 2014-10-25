@@ -22,6 +22,7 @@
 			<item value="com.android.ide.eclipse.wizards.category"/>
 		</list>
 	</section>
+<<<<<<< HEAD
 	<section name="ShowViewDialog">
 		<item value="308" key="DIALOG_WIDTH"/>
 		<item value="com.android.ide.eclipse.ddms.views.LogCatView" key="ShowViewDialog.STORE_SELECTED_VIEW_ID"/>
@@ -33,6 +34,8 @@
 			<item value="com.android.ide.eclipse.ddms.views.category"/>
 		</list>
 	</section>
+=======
+>>>>>>> FETCH_HEAD
 	<section name="EditorSelectionDialog">
 	</section>
 </section>

@@ -8,8 +8,12 @@ android:layout_height="wrap_content"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+<<<<<<< HEAD
     tools:context=".OrchestratorJsActivity"
     android:id="@+id/mainRelativeLayout" >
+=======
+    tools:context=".OrchestratorJsActivity" >
+>>>>>>> FETCH_HEAD
 
     <Button
         android:id="@+id/disconnect"
@@ -27,6 +31,7 @@ android:layout_height="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/disconnect"
         android:layout_alignBottom="@+id/disconnect"
+<<<<<<< HEAD
         android:text="  Connect " />
 
     <FrameLayout
@@ -59,5 +64,28 @@ android:layout_height="wrap_content"
          android:layout_alignParentBottom="true"
          android:layout_centerHorizontal="true"
          android:text="test" />
+=======
+        android:layout_alignLeft="@+id/imageView1"
+        android:text="  Connect " />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/disconnect"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="35dp"
+        android:src="@drawable/ojscolors300notext" />
+
+    <ImageView
+        android:id="@+id/hearbeatBlink"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignRight="@+id/disconnect"
+        android:layout_alignTop="@+id/imageView1"
+        android:layout_marginRight="33dp"
+        android:layout_marginTop="124dp"
+        android:src="@drawable/blink4" />
+>>>>>>> FETCH_HEAD
     
 </RelativeLayout>

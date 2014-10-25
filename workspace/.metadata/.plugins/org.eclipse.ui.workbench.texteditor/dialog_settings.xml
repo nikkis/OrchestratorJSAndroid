@@ -5,7 +5,11 @@
 		<item value="117" key="DIALOG_Y_ORIGIN"/>
 		<item value="901" key="DIALOG_X_ORIGIN"/>
 		<item value="399" key="DIALOG_HEIGHT"/>
+<<<<<<< HEAD
 		<item value="1|.Helvetica Neue DeskInterface|11.0|0|COCOA|1|.HelveticaNeueDeskInterface-Regular" key="DIALOG_FONT_NAME"/>
+=======
+		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
+>>>>>>> FETCH_HEAD
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
@@ -13,6 +17,7 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
+<<<<<<< HEAD
 		<item value="Cannot" key="selection"/>
 		<list key="findhistory">
 			<item value="Cannot"/>
@@ -23,6 +28,18 @@
 			<item value="startS"/>
 			<item value="client.connect"/>
 			<item value="Error!"/>
+=======
+		<item value="" key="selection"/>
+		<list key="findhistory">
+			<item value="coff"/>
+			<item value="coffee"/>
+			<item value="INFO_TYPE"/>
+			<item value="type"/>
+			<item value="sendMetadata"/>
+			<item value="sendResponse"/>
+			<item value="send"/>
+			<item value="sendre"/>
+>>>>>>> FETCH_HEAD
 		</list>
 		<list key="replacehistory">
 		</list>

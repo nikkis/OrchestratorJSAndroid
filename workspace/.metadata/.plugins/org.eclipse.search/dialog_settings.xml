@@ -6,16 +6,23 @@
 	<section name="">
 		<item value="1000" key="org.eclipse.search.resultpage.limit"/>
 	</section>
+<<<<<<< HEAD
 	<section name="org.eclipse.jdt.ui.JavaSearchResultPage">
 		<item value="TRUE" key="org.eclipse.jdt.search.resultpage.limit_enabled"/>
 		<item value="1000" key="org.eclipse.jdt.search.resultpage.limit"/>
 	</section>
+=======
+>>>>>>> FETCH_HEAD
 	<section name="DialogBounds_SearchDialog">
 		<item value="509" key="DIALOG_WIDTH"/>
 		<item value="105" key="DIALOG_Y_ORIGIN"/>
-		<item value="424" key="DIALOG_HEIGHT"/>
 		<item value="379" key="DIALOG_X_ORIGIN"/>
+<<<<<<< HEAD
 		<item value="1|.Helvetica Neue DeskInterface|11.0|0|COCOA|1|.HelveticaNeueDeskInterface-Regular" key="DIALOG_FONT_NAME"/>
+=======
+		<item value="424" key="DIALOG_HEIGHT"/>
+		<item value="1|Lucida Grande|11.0|0|COCOA|1|LucidaGrande" key="DIALOG_FONT_NAME"/>
+>>>>>>> FETCH_HEAD
 	</section>
 	<section name="Search">
 		<list key="Search.processedPageIds">
@@ -38,10 +45,20 @@
 		<item value="false" key="CASE_SENSITIVE"/>
 		<item value="false" key="REG_EX_SEARCH"/>
 		<item value="false" key="SEARCH_DERIVED"/>
+<<<<<<< HEAD
 		<item value="10" key="HISTORY_SIZE"/>
 		<section name="HISTORY2">
 			<item value="false" key="isRegExSearch"/>
 			<item value="Cannot connect to server" key="textPattern"/>
+=======
+		<item value="4" key="HISTORY_SIZE"/>
+		<section name="EXTENSIONS">
+			<item value="*" key="0"/>
+		</section>
+		<section name="HISTORY2">
+			<item value="false" key="isRegExSearch"/>
+			<item value="sd_exception" key="textPattern"/>
+>>>>>>> FETCH_HEAD
 			<item value="0" key="scope"/>
 			<item value="true" key="ignoreCase"/>
 			<list key="fileNamePatterns">
@@ -50,8 +67,16 @@
 			<list key="workingSets">
 			</list>
 		</section>
-		<section name="EXTENSIONS">
-			<item value="*" key="0"/>
+		<section name="HISTORY3">
+			<item value="false" key="isRegExSearch"/>
+			<item value="GeneralSettingsA" key="textPattern"/>
+			<item value="0" key="scope"/>
+			<item value="true" key="ignoreCase"/>
+			<list key="fileNamePatterns">
+				<item value="*"/>
+			</list>
+			<list key="workingSets">
+			</list>
 		</section>
 		<section name="HISTORY3">
 			<item value="false" key="isRegExSearch"/>
@@ -66,7 +91,11 @@
 		</section>
 		<section name="HISTORY0">
 			<item value="false" key="isRegExSearch"/>
+<<<<<<< HEAD
 			<item value="Cannot connect to orchestrator" key="textPattern"/>
+=======
+			<item value="coffeeReady" key="textPattern"/>
+>>>>>>> FETCH_HEAD
 			<item value="0" key="scope"/>
 			<item value="true" key="ignoreCase"/>
 			<list key="fileNamePatterns">
@@ -77,6 +106,7 @@
 		</section>
 		<section name="HISTORY1">
 			<item value="false" key="isRegExSearch"/>
+<<<<<<< HEAD
 			<item value="Cannot connect to" key="textPattern"/>
 			<item value="0" key="scope"/>
 			<item value="true" key="ignoreCase"/>
@@ -100,6 +130,9 @@
 		<section name="HISTORY8">
 			<item value="false" key="isRegExSearch"/>
 			<item value="sd_exception" key="textPattern"/>
+=======
+			<item value="sd_event" key="textPattern"/>
+>>>>>>> FETCH_HEAD
 			<item value="0" key="scope"/>
 			<item value="true" key="ignoreCase"/>
 			<list key="fileNamePatterns">
